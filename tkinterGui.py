@@ -27,7 +27,7 @@ class GUI(Canvas):
         end_x = center_x + line_length * math.cos(angle_in_radians)
         end_y = center_y + line_length * math.sin(angle_in_radians)
         self.line = self.canvas.create_line(center_x, center_y, end_x, end_y, fill="red", width="10")
-        
+        self.lines = []
         self.radar = radarLogic.Radar()
         thread = Thread(target = self.radar.run_radar)
         try:
@@ -38,36 +38,45 @@ class GUI(Canvas):
 
 
 
-    def clock(self):
+    def update_radar(self):
+        for line in self.lines:
+            self.canvas.delete(line)
         time = datetime.datetime.now().strftime("Time: %H:%M:%S")
         self.lab.config(text=time)
-        print("Current Distance in GUIClass: " + str(self.radar.current_distance))
-        self.canvas.delete(self.line)
-        angle_in_degrees = - self.radar.current_angle
-        angle_in_radians = angle_in_degrees * math.pi / 180
-        line_length = 550
-        center_x = 540
-        center_y = 540
-        end_x = center_x + line_length * math.cos(angle_in_radians)
-        end_y = center_y + line_length * math.sin(angle_in_radians)
-        if self.radar.current_distance < self.radar.distances[self.radar.current_angle] + 0.4:
-            self.line = self.canvas.create_line(center_x, center_y, end_x, end_y, fill="red", width="10")
-        else:
-            self.line = self.canvas.create_line(center_x, center_y, end_x, end_y, fill="green", width="10")
         
+        self.canvas.delete(self.line)
+        for i in range(0, 10):
+            angle_in_degrees = - self.radar.current_angle + i
+            angle_in_radians = angle_in_degrees * math.pi / 180
+            line_length = 550
+            center_x = 540
+            center_y = 540
+            end_x = center_x + line_length * math.cos(angle_in_radians)
+            end_y = center_y + line_length * math.sin(angle_in_radians)
+            if self.radar.current_distance < self.radar.distances[self.radar.current_angle] + 0.5 and self.radar.distances[self.radar.current_angle] < 20:
+                self.lines.append(self.canvas.create_line(center_x, center_y, end_x, end_y, fill="red", width="10"))
+            else:
+                self.lines.append(self.canvas.create_line(center_x, center_y, end_x, end_y, fill="green", width="10"))
         #lab['text'] = time
-        self.root.after(1000, self.clock) # run itself again after 1000 ms
-    
-    def update_line(self):
-        print("TEst")
+        self.root.after(100, self.update_radar)# run itself again after 1000 ms
+        
+    def print_update(self):
+        print("Current Distance in GUIClass: " + str(self.radar.current_distance))
+        print("Current Distance in Dictionary: " + str(self.radar.distances[self.radar.current_angle]))
+        self.root.after(1000, self.print_update)# run itself again after 1000 ms
 
 def main():
-    root = Tk()
-    root.wm_geometry("1080x1080")
-    root.title('Radar')
-    gui = GUI(root)
-    gui.clock()
-    root.mainloop()
+    try:
+        root = Tk()
+        root.wm_geometry("1080x1080")
+        root.title('Radar')
+        gui = GUI(root)
+        gui.update_radar()
+        gui.print_update()
+        root.mainloop()
+    except KeyboardInterrupt:
+            print "Ctrl+C pressed..."
+            sys.exit(1)
 
 if __name__ == "__main__":
     main()

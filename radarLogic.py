@@ -4,6 +4,7 @@ import time
 import signal
 import atexit
 import Tkinter as Tk
+import sys
 
 
 class Radar:
@@ -54,7 +55,7 @@ class Radar:
             time.sleep(0.2)
             self.distances[i] = self.checkdist()
             print 'Distance ' + 'for ' + str(i) + ': ' +  '%0.2f m' %self.checkdist()
-            time.sleep(0.5)
+            time.sleep(0.02)
             self.p.ChangeDutyCycle(0)
             time.sleep(0.2)
             
@@ -63,7 +64,7 @@ class Radar:
             while(True):
                 for i in range(0,180,10):
                     #print("i: " + str(i))
-                    #print("Value for angle " + str(i) + ": " + str(2.5 + 10 * i / 180))
+                    print("Value for angle " + str(i) + ": " + str(2.5 + 10 * i / 180))
                     #print(2.5 + 10 * i / 180)
                     '''Explanation
                     Python 2.7 dividiert und gibt integer zurueck -> KIndergarten dividieren
@@ -79,21 +80,21 @@ class Radar:
                     
                     self.current_angle = i
                     self.current_distance = self.checkdist()
-                    print 'Distance: %0.2f m' %self.current_distance 
                     
                     time.sleep(0.5)
-                    self.p.ChangeDutyCycle(0)
+                    #self.p.ChangeDutyCycle(0)
                     time.sleep(0.2)
                 for i in range(180,0,-10):
-                    #print("Value for angle " + str(i) + ": " + str(2.5 + 10 * i / 180))
+                    print("Value for angle " + str(i) + ": " + str(2.5 + 10 * i / 180))
                     self.p.ChangeDutyCycle(2.5 + 10 * i / 180)
                     time.sleep(0.2)
                     self.current_angle = i
                     self.current_distance = self.checkdist()
-                    print 'Distance: %0.2f m' %self.current_distance 
                     time.sleep(0.5)
-                    self.p.ChangeDutyCycle(0)
+                    #self.p.ChangeDutyCycle(0)
                     time.sleep(0.2)
         except KeyboardInterrupt:
             GPIO.cleanup()
+            print "Ctrl+C pressed..."
+            sys.exit(1)
             
